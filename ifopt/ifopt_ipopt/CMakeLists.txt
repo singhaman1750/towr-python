@@ -26,6 +26,34 @@ target_link_libraries(${LIB_IPOPT}
   PRIVATE
     ${IPOPT_LIBRARIES}
 )
+
+# Some IPOPT binaries (notably conda builds) can depend on a newer C++ ABI
+# than the system toolchain. Use the directory containing libipopt to locate
+# an ABI-compatible libstdc++/libgcc and expose it to the linker.
+set(_IFOPT_IPOPT_LIBDIR "")
+foreach(_IFOPT_LIB IN LISTS IPOPT_LIBRARIES)
+  if(IS_ABSOLUTE "${_IFOPT_LIB}")
+    get_filename_component(_IFOPT_LIBDIR "${_IFOPT_LIB}" DIRECTORY)
+    if(EXISTS "${_IFOPT_LIBDIR}/libstdc++.so.6")
+      set(_IFOPT_IPOPT_LIBDIR "${_IFOPT_LIBDIR}")
+      break()
+    endif()
+  endif()
+endforeach()
+
+if(_IFOPT_IPOPT_LIBDIR)
+  target_link_directories(${LIB_IPOPT} PRIVATE ${_IFOPT_IPOPT_LIBDIR})
+  target_link_libraries(${LIB_IPOPT}
+    PRIVATE
+      ${_IFOPT_IPOPT_LIBDIR}/libstdc++.so.6
+      ${_IFOPT_IPOPT_LIBDIR}/libgcc_s.so.1
+  )
+  target_link_options(${LIB_IPOPT}
+    PRIVATE
+      -Wl,-rpath,${_IFOPT_IPOPT_LIBDIR}
+      -Wl,-rpath-link,${_IFOPT_IPOPT_LIBDIR}
+  )
+endif()
 if(IPOPT_LINK_FLAGS)
   target_link_options(${LIB_IPOPT} PRIVATE ${IPOPT_LINK_FLAGS})
 endif()
@@ -43,6 +71,20 @@ target_link_libraries(${LIB_IPOPT}-example
   PRIVATE 
     ${LIB_IPOPT}
 )
+if(DEFINED _IFOPT_IPOPT_LIBDIR)
+  if(EXISTS "${_IFOPT_IPOPT_LIBDIR}")
+    target_link_libraries(${LIB_IPOPT}-example
+      PRIVATE
+        ${_IFOPT_IPOPT_LIBDIR}/libstdc++.so.6
+        ${_IFOPT_IPOPT_LIBDIR}/libgcc_s.so.1
+    )
+    target_link_options(${LIB_IPOPT}-example
+      PRIVATE
+        -Wl,-rpath,${_IFOPT_IPOPT_LIBDIR}
+        -Wl,-rpath-link,${_IFOPT_IPOPT_LIBDIR}
+    )
+  endif()
+endif()
 add_test(${LIB_IPOPT}-example ${LIB_IPOPT}-example)
 
 

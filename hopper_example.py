@@ -94,9 +94,9 @@ def main():
         print("\n6. Solving with IPOPT...")
         result = towr.solve_nlp(
             formulation,
-            max_cpu_time=20.0,
+            max_cpu_time=150.0,
             jacobian_approximation="exact",
-            sample_dt=0.01,
+            sample_dt=0.05,
             print_nlp=False,
         )
         sampled = result["sampled"]

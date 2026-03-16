@@ -89,17 +89,45 @@ if(NOT WIN32)
   
   # if IPOPT_DIR not set, try finding IPOPT through package manager  
   else()
+    # collect likely IPOPT prefixes (system + conda + CMAKE_PREFIX_PATH)
+    set(_IPOPT_PREFIX_HINTS "")
+    if(DEFINED ENV{CONDA_PREFIX})
+      list(APPEND _IPOPT_PREFIX_HINTS $ENV{CONDA_PREFIX})
+    endif()
+    if(CMAKE_PREFIX_PATH)
+      list(APPEND _IPOPT_PREFIX_HINTS ${CMAKE_PREFIX_PATH})
+    endif()
+
+    # help pkg-config discover .pc files from non-standard prefixes
+    if(_IPOPT_PREFIX_HINTS)
+      set(_IPOPT_PKGCONFIG_PATH "")
+      foreach(_PREFIX ${_IPOPT_PREFIX_HINTS})
+        list(APPEND _IPOPT_PKGCONFIG_PATH
+             "${_PREFIX}/lib/pkgconfig"
+             "${_PREFIX}/lib64/pkgconfig"
+             "${_PREFIX}/share/pkgconfig")
+      endforeach()
+      list(REMOVE_DUPLICATES _IPOPT_PKGCONFIG_PATH)
+      if(DEFINED ENV{PKG_CONFIG_PATH} AND NOT "$ENV{PKG_CONFIG_PATH}" STREQUAL "")
+        string(JOIN ":" _IPOPT_PKGCONFIG_PATH_STR ${_IPOPT_PKGCONFIG_PATH})
+        set(ENV{PKG_CONFIG_PATH} "${_IPOPT_PKGCONFIG_PATH_STR}:$ENV{PKG_CONFIG_PATH}")
+      else()
+        string(JOIN ":" _IPOPT_PKGCONFIG_PATH_STR ${_IPOPT_PKGCONFIG_PATH})
+        set(ENV{PKG_CONFIG_PATH} "${_IPOPT_PKGCONFIG_PATH_STR}")
+      endif()
+    endif()
+
     find_package(PkgConfig QUIET)
     if(PKG_CONFIG_FOUND)
     
       if(IPOPT_FIND_VERSION)
         if(IPOPT_FIND_VERSION_EXACT)
-          pkg_check_modules(_PC_IPOPT REQUIRED ipopt=${IPOPT_FIND_VERSION})
+          pkg_check_modules(_PC_IPOPT QUIET ipopt=${IPOPT_FIND_VERSION})
         else()
-          pkg_check_modules(_PC_IPOPT REQUIRED ipopt>=${IPOPT_FIND_VERSION})
+          pkg_check_modules(_PC_IPOPT QUIET ipopt>=${IPOPT_FIND_VERSION})
         endif()
       else()
-        pkg_check_modules(_PC_IPOPT REQUIRED ipopt)
+        pkg_check_modules(_PC_IPOPT QUIET ipopt)
       endif()
     
     
@@ -119,6 +147,36 @@ if(NOT WIN32)
       else()
         set(IPOPT_DEFINITIONS "")
       endif()
+    endif()
+
+    # Fallback for setups where pkg-config cannot locate IPOPT (e.g. some conda environments)
+    if(NOT IPOPT_LIBRARIES)
+      set(_IPOPT_INCLUDE_HINTS "")
+      set(_IPOPT_LIBRARY_HINTS "")
+      foreach(_PREFIX ${_IPOPT_PREFIX_HINTS})
+        list(APPEND _IPOPT_INCLUDE_HINTS
+             "${_PREFIX}/include"
+             "${_PREFIX}/include/coin"
+             "${_PREFIX}/include/coin-or")
+        list(APPEND _IPOPT_LIBRARY_HINTS
+             "${_PREFIX}/lib"
+             "${_PREFIX}/lib64"
+             "${_PREFIX}/lib/coin")
+      endforeach()
+
+      find_path(IPOPT_INCLUDE_DIRS
+        NAMES IpIpoptApplication.hpp
+        PATH_SUFFIXES coin coin-or
+        PATHS ${_IPOPT_INCLUDE_HINTS})
+
+      find_library(IPOPT_MAIN_LIBRARY
+        NAMES ipopt libipopt
+        PATHS ${_IPOPT_LIBRARY_HINTS})
+
+      if(IPOPT_MAIN_LIBRARY)
+        set(IPOPT_LIBRARIES ${IPOPT_MAIN_LIBRARY})
+      endif()
+      set(IPOPT_DEFINITIONS "")
     endif()
   endif()
   
