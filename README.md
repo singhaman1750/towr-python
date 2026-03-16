@@ -1,3 +1,35 @@
+## Quick Start (Bash)
+
+```bash
+# 1) Clone and enter repo
+git clone <your-repo-url>
+cd towr-python
+
+# 2) Create environment (conda recommended)
+conda create -n towrpy python=3.11 -y
+conda activate towrpy
+conda install -c conda-forge cmake ninja eigen ipopt pybind11 numpy matplotlib -y
+
+# 3) Build ifopt (install locally into this repo)
+cmake -S ifopt -B ifopt/build -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX="$PWD/ifopt/install"
+cmake --build ifopt/build --target install
+
+# 4) Build towr + Python module
+cmake -S towr -B towr/build -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_PREFIX_PATH="$PWD/ifopt/install"
+cmake --build towr/build --target towr_cpp
+
+# 5) Run a basic example
+python hopper_example.py
+
+# 6) Optional: plot/animate result
+python plot_hopper_result.py
+python animate_hopper_result.py
+```
+
 <img align="right" src="https://i.imgur.com/qI1Jfyl.gif" width="55%"/>
 
 [<img src="https://i.imgur.com/qliQVx1.png" />](https://ieeexplore.ieee.org/document/8283570 "Go to RA-L paper")
