@@ -2,7 +2,7 @@
 
 ```bash
 # 1) Clone and enter repo
-git clone <your-repo-url>
+git clone https://github.com/singhaman1750/towr-python.git
 cd towr-python
 
 # 2) Create environment (conda recommended)
