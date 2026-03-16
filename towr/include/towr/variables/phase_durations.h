@@ -51,7 +51,7 @@ class PhaseDurations : public ifopt::VariableSet {
 public:
   using Ptr           = std::shared_ptr<PhaseDurations>;
   using VecDurations  = std::vector<double>;
-  using EndeffectorID = uint;
+  using EndeffectorID = unsigned int;
 
 
   /**

@@ -74,7 +74,7 @@ public:
   using Jac      = Eigen::SparseMatrix<double, Eigen::RowMajor>;
   using EEPos    = std::vector<Eigen::Vector3d>;
   using EELoad   = EEPos;
-  using EE       = uint;
+  using EE       = unsigned int;
 
   /**
    * @brief Sets the current state and input of the system.

@@ -1,8 +1,13 @@
-cmake_minimum_required(VERSION 3.1.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 project(towr VERSION 1.3.2)
+
+if(WIN32)
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 find_package(ifopt 2.0.1 REQUIRED)
+find_package(pybind11 CONFIG REQUIRED)
 
 
 ###########
@@ -72,21 +77,43 @@ target_include_directories(${PROJECT_NAME}
     $<INSTALL_INTERFACE:include>
 )
 
+#########################
+## Python Bindings      ##
+#########################
+pybind11_add_module(towr_cpp 
+  python/towr_bindings.cpp
+)
+target_link_libraries(towr_cpp 
+  PRIVATE 
+    ${PROJECT_NAME}
+    ifopt::ifopt_core
+)
+if(TARGET ifopt::ifopt_ipopt)
+  target_link_libraries(towr_cpp PRIVATE ifopt::ifopt_ipopt)
+  target_compile_definitions(towr_cpp PRIVATE TOWR_PYTHON_HAS_IPOPT=1)
+endif()
+target_include_directories(towr_cpp
+  PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+)
+
 
 #############
 ## Testing ##
 #############
 enable_testing()
 # example problem solved with IPOPT
-add_executable(${PROJECT_NAME}-example 
-  test/hopper_example.cc
-)
-target_link_libraries(${PROJECT_NAME}-example  
-  PRIVATE
-    ${PROJECT_NAME} 
-    ifopt::ifopt_ipopt
-)
-add_test(${PROJECT_NAME}-example ${PROJECT_NAME}-example)
+if(TARGET ifopt::ifopt_ipopt)
+  add_executable(${PROJECT_NAME}-example 
+    test/hopper_example.cc
+  )
+  target_link_libraries(${PROJECT_NAME}-example  
+    PRIVATE
+      ${PROJECT_NAME} 
+      ifopt::ifopt_ipopt
+  )
+  add_test(${PROJECT_NAME}-example ${PROJECT_NAME}-example)
+endif()
 
 # unit tests of costs/constraints
 find_package(GTest QUIET)
@@ -110,8 +137,12 @@ endif()
 #############
 include(GNUInstallDirs) # for correct libraries locations across platforms
 set(config_package_location "share/${PROJECT_NAME}/cmake") # for .cmake find-scripts installs
+set(towr_install_targets ${PROJECT_NAME})
+if(TARGET ${PROJECT_NAME}-example)
+  list(APPEND towr_install_targets ${PROJECT_NAME}-example)
+endif()
 install(
-  TARGETS ${PROJECT_NAME} ${PROJECT_NAME}-example 
+  TARGETS ${towr_install_targets}
   EXPORT ${PROJECT_NAME}-targets
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

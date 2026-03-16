@@ -47,17 +47,17 @@ static const std::string ee_force_nodes    = "ee-force_";
 static const std::string contact_schedule  = "ee-schedule";
 
 
-static std::string EEMotionNodes(uint ee)
+static std::string EEMotionNodes(unsigned int ee)
 {
   return  ee_motion_nodes + std::to_string(ee);
 }
 
-static std::string EEForceNodes(uint ee)
+static std::string EEForceNodes(unsigned int ee)
 {
   return  ee_force_nodes + std::to_string(ee);
 }
 
-static std::string EESchedule(uint ee)
+static std::string EESchedule(unsigned int ee)
 {
   return  contact_schedule + std::to_string(ee);
 }

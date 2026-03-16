@@ -51,7 +51,7 @@ namespace towr {
  */
 class TotalDurationConstraint : public ifopt::ConstraintSet {
 public:
-  using EE = uint;
+  using EE = unsigned int;
 
   TotalDurationConstraint(double T_total, int ee);
   ~TotalDurationConstraint() = default;

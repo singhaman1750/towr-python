@@ -54,7 +54,7 @@ namespace towr {
   */
 class RangeOfMotionConstraint : public TimeDiscretizationConstraint {
 public:
-  using EE = uint;
+  using EE = unsigned int;
   using Vector3d = Eigen::Vector3d;
 
   /**

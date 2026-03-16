@@ -99,7 +99,10 @@ public:
    *             n: Number of optimized durations.
    */
   virtual Jacobian
-  GetJacobianOfPosWrtDurations(double t) const { assert(false); } // durations are fixed here
+  GetJacobianOfPosWrtDurations(double t) const {
+    assert(false);
+    return Jacobian(GetPoint(t).p().size(), 0);
+  } // durations are fixed here
 
 protected:
   /**

@@ -35,7 +35,7 @@ namespace towr {
 
 Spline::Spline(const VecTimes& poly_durations, int n_dim)
 {
-  uint n_polys = poly_durations.size();
+  unsigned int n_polys = static_cast<unsigned int>(poly_durations.size());
 
   cubic_polys_.assign(n_polys, CubicHermitePolynomial(n_dim));
   for (int i=0; i<cubic_polys_.size(); ++i) {
@@ -63,6 +63,7 @@ Spline::GetSegmentID(double t_global, const VecTimes& durations)
    }
 
    assert(false); // this should never be reached
+  return std::max(0, static_cast<int>(durations.size()) - 1);
 }
 
 std::pair<int,double>

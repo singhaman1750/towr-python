@@ -57,6 +57,8 @@ MonopedGaitGenerator::GetGait (Gaits gait) const
     case Hop2:    return GetStrideHopLong();
     default: assert(false); // gait not implemented
   }
+
+  return GetStrideStand();
 }
 
 MonopedGaitGenerator::GaitInfo

@@ -77,6 +77,8 @@ BipedGaitGenerator::GetGait (Gaits gait) const
     case Hop5:    return GetStrideGallopHop();
     default: assert(false); // gait not implemented
   }
+
+  return GetStrideStand();
 }
 
 BipedGaitGenerator::GaitInfo

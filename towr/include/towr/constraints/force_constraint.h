@@ -55,7 +55,7 @@ namespace towr {
 class ForceConstraint : public ifopt::ConstraintSet {
 public:
   using Vector3d = Eigen::Vector3d;
-  using EE = uint;
+  using EE = unsigned int;
 
   /**
    * @brief Constructs a force contraint.

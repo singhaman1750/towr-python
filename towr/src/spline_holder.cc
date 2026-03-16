@@ -44,7 +44,7 @@ SplineHolder::SplineHolder (NodesVariables::Ptr base_lin_nodes,
   base_angular_ = std::make_shared<NodeSpline>(base_ang_nodes.get(), base_poly_durations);
   phase_durations_ = phase_durations;
 
-  for (uint ee=0; ee<ee_motion_nodes.size(); ++ee) {
+  for (unsigned int ee=0; ee<ee_motion_nodes.size(); ++ee) {
     if (durations_change) {
       // spline that changes the polynomial durations (affects Jacobian)
       ee_motion_.push_back(std::make_shared<PhaseSpline>(ee_motion_nodes.at(ee), phase_durations.at(ee).get()));

@@ -49,6 +49,8 @@ GaitGenerator::MakeGaitGenerator(int leg_count)
     case 4: return std::make_shared<QuadrupedGaitGenerator>(); break;
     default: assert(false); break; // Error: Not implemented
   }
+
+  return nullptr;
 }
 
 GaitGenerator::VecTimes

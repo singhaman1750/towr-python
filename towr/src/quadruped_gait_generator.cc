@@ -108,6 +108,8 @@ QuadrupedGaitGenerator::GetGait(Gaits gait) const
     case Hop5:    return GetStrideLimp();
     default: assert(false); // gait not implemented
   }
+
+  return GetStrideStand();
 }
 
 QuadrupedGaitGenerator::GaitInfo
